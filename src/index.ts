@@ -10,9 +10,14 @@ let Complex = require('three-simplicial-complex')(THREE)
 
 var flipSoundPath = require("./assets/flip.mp3");
 // require("file-loader?name=favicon.ico!./favicon.ico")
-require("file-loader?name=favicon-16x16.png!./favicon-16x16.png")
-require("file-loader?name=favicon-32x32.png!./favicon-32x32.png")
-require("file-loader?name=pace.min.js!./assets/pace.min.js")
+// require("file-loader?name=share.png!./share.png")
+
+// require("static?!./share.png?output=share.png");
+
+
+// require("file-loader?name=favicon-16x16.png!./favicon-16x16.png")
+// require("file-loader?name=favicon-32x32.png!./favicon-32x32.png")
+// require("file-loader?name=pace.min.js!./assets/pace.min.js")
 
 /* Code */
 
