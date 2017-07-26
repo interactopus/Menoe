@@ -1,0 +1,150 @@
+canvas {
+  height: 100vh;
+  width: 100vw;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.svg-container {
+  display: inline-block;
+}
+
+.svg-container svg {
+  display: inline-block;
+  height: 100%;
+}
+
+.top-menu {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-left: 16pt;
+  padding-right: 16pt;
+  padding-top: 12pt;
+  padding-bottom: 12pt;
+  background-color: black;
+  z-index: 3000;
+  padding:
+}
+
+.top-menu a.svg-container, #closeAboutButton {
+  height: 14.5pt;
+}
+
+.top-menu a.svg-container:not(:first-child) {
+  margin-left: 10pt;
+}
+
+.top-menu a.svg-container svg, #typetodayButton svg, .author-links a svg, #closeAboutButton svg {
+  fill: white;
+  height: inherit;
+}
+
+.top-menu a.svg-container:hover svg, #typetodayButton:hover svg, .author-links a:hover svg, #closeAboutButton:hover svg {
+  fill: silver;
+}
+
+.flex-space {
+  flex-grow: 1;
+}
+
+.author-links {
+  padding-left: 60pt;
+}
+
+.author-links a {
+  height: 17pt;
+  margin-bottom: 12pt;
+}
+
+#typetodayButton {
+  height: 16pt;
+  width: 50pt;
+  margin-top: -8pt;
+  margin-left: -25pt;
+  text-align: center;
+  left: 50%;
+  top: 18pt;
+  position: fixed;
+  z-index: 4000;
+}
+
+#about {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 384px;
+  height: 366px;
+  margin-top: -183px;
+  margin-left: -192px;
+  background-color: black;
+  transition: all .5s ease-in-out;
+  opacity: 1;
+}
+
+#about.hidden {
+  opacity: 0;
+}
+
+#closeAboutButton {
+  position: absolute;
+  right: 12pt;
+  top: 12pt;
+}
+
+#interactopusLogo {
+  display: block;
+  height: 56pt;
+  margin-top: 24pt;
+  margin-bottom: 6pt;
+  text-align: center;
+}
+
+#aboutHeader {
+  height: 21pt;
+  display: block;
+  padding-left: 60pt;
+  margin-bottom: 30pt;
+}
+
+#aboutHeader svg, #interactopusLogo svg {
+  fill: white;
+}
+
+#scrollInfo {
+  position: fixed;
+  left: 50%;
+  bottom: 10vh;
+  width: 260pt;
+  height: 30pt;
+  padding: 20pt;
+  margin-left: -130pt;
+  text-align: center;
+  background-color: white;
+  pointer-events: none;
+  transition: opacity .5s ease-in-out;
+  transition-delay: 1s;
+}
+
+#scrollInfo svg {
+  display: inline-block;
+  height: 100%;
+  fill: black;
+}
+
+@media (max-width: 900px) {
+  #scrollInfo {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .top-menu a.svg-container {
+    height: 11pt;
+  }
+  #typetodayButton {
+    height: 14pt;
+    top: 17pt;
+  }
+}
