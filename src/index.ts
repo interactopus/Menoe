@@ -19,6 +19,9 @@ var flipSoundPath = require("./assets/flip.mp3");
 // require("file-loader?name=favicon-32x32.png!./favicon-32x32.png")
 require("file-loader?name=pace.min.js!./assets/pace.min.js")
 
+//стили страницы
+require("./assets/site.css")
+
 /* Code */
 
 export default class AppComponent {
@@ -77,6 +80,16 @@ export default class AppComponent {
   private availableLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 
   private plateSound: Howl;
+  private latestScreenShootBlobUrl: string;
+
+  // interface parts
+  private clearButton: HTMLElement;
+  private screenshootButton: HTMLElement;
+  private aboutButton: HTMLElement;
+  private closeAboutButton: HTMLElement;
+  private zoomInButton: HTMLElement;
+  private zoomOutButton: HTMLElement;
+  private scrollInfo: HTMLElement;
 
   constructor() {
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -183,17 +196,41 @@ export default class AppComponent {
   }
 
   completeSceneGeneration = (): void => {
+    this.fillUiFromCode();
     this.fillSceneWithPlates();
     this.bindEvents();
     this.render();
   }
 
-  bindEvents = (): void => {
-    this.canvas.addEventListener('click', this.onDocumentMouseClick, false);
-    this.canvas.addEventListener('mousemove', this.onDocumentMouseMove, false);
-    this.canvas.addEventListener("touchstart", this.onTouchStart, false);
-    this.canvas.addEventListener("touchmove", this.onTouchMove, false);
+  insertHtml = (elementId: string, html: string): HTMLElement => {
+    let element = document.getElementById(elementId);
+    element.innerHTML = html;
+    return element;
+  }
 
+  fillUiFromCode = (): void => {
+    // верхнее меню
+    this.insertHtml("typetodayButton", require('./assets/ui/typetoday_logo.svg'));
+    this.insertHtml("aboutHeader", require('./assets/ui/about_header.svg'));
+    this.insertHtml("interactopusLogo", require('./assets/ui/interactopus_logo.svg'));
+    // авторы
+    this.insertHtml("alexanderButton", require('./assets/ui/alexander.svg'));
+    this.insertHtml("dmitryButton", require('./assets/ui/dmitry.svg'));
+    this.insertHtml("mariaButton", require('./assets/ui/maria.svg'));
+    this.insertHtml("vadimButton", require('./assets/ui/vadim.svg'));
+    //прочие элементы
+    this.insertHtml("scrollInfo", require('./assets/ui/scroll_helper.svg'));
+
+    //интерфейс
+    this.clearButton = this.insertHtml("clearButton", require('./assets/ui/clear.svg'));
+    this.aboutButton = this.insertHtml("aboutButton", require('./assets/ui/by_interactopus.svg'));
+    this.closeAboutButton = this.insertHtml("closeAboutButton", require('./assets/ui/close.svg'));
+    this.screenshootButton = this.insertHtml("screenshootButton", require('./assets/ui/capture.svg'));
+    // this.zoomInButton = this.insertHtml("zoomInButton", require('./assets/ui/zoom_in.svg'));
+    // this.zoomOutButton = this.insertHtml("zoomOutButton", require('./assets/ui/zoom_out.svg'));
+  }
+
+  bindWheelEvents = (): void => {
     if ('onwheel' in document) {
       // IE9+, FF17+, Ch31+
       this.canvas.addEventListener("wheel", this.onWheel);
@@ -204,25 +241,44 @@ export default class AppComponent {
       // Firefox < 17
       this.canvas.addEventListener("MozMousePixelScroll", this.onWheel);
     }
+  }
 
-    //links
-    document.getElementById("dmitry").addEventListener("click", () => this.openLink("https://www.facebook.com/dmitry.ulmermorozov"));
-    document.getElementById("maria").addEventListener("click", () => this.openLink("https://www.facebook.com/mmmirzametova"));
-    document.getElementById("alexandr").addEventListener("click", () => this.openLink("https://www.facebook.com/nobodyroo"));
-    document.getElementById("vadim").addEventListener("click", () => this.openLink("https://www.facebook.com/mirumirg"));
-    document.getElementById("type-today-logo").addEventListener("click", () => this.openLink("https://type.today/ru/menoe"));
+  bindEvents = (): void => {
+    this.bindWheelEvents();
+
+    // прикрутим элементы
+    this.scrollInfo = document.getElementById("scrollInfo");
+
+    this.canvas.addEventListener('click', this.onDocumentMouseClick, false);
+    this.canvas.addEventListener('mousemove', this.onDocumentMouseMove, false);
+    this.canvas.addEventListener("touchstart", this.onTouchStart, false);
+    this.canvas.addEventListener("touchmove", this.onTouchMove, false);
 
     let aboutEl = document.getElementById("about");
 
-    document.getElementById("byInteractopusButton").addEventListener("click", () => {
-      aboutEl.style.display = 'block';
+    this.aboutButton.addEventListener("click", () => {
+      aboutEl.style.display = 'initial';
+      setTimeout(() => this.removeClass(aboutEl, "hidden"));
     });
 
-    document.getElementById("close-about-button").addEventListener("click", () => {
-      aboutEl.style.display = 'none';
+    this.closeAboutButton.addEventListener("click", () => {
+      this.addClass(aboutEl, "hidden");
+
+      let transitionEndListener = () => {
+        aboutEl.style.display = 'none';
+        aboutEl.removeEventListener("transitionend", transitionEndListener);
+      }
+      aboutEl.addEventListener("transitionend", transitionEndListener);
     });
 
-    document.getElementById("clearButton").addEventListener("click", this.clearRotations);
+    // возврат плашек в начальное состояние
+    this.clearButton.addEventListener("click", this.clearRotations);
+
+    // Скачивание скриншота
+    this.screenshootButton.addEventListener("click", () => {
+      this.render();
+      this.takeScreenshootAndSave();
+    });
   }
 
   clearRotations = (): void => {
@@ -366,6 +422,7 @@ export default class AppComponent {
 
     this.camera.zoom = newZoomLevel;
     this.camera.updateProjectionMatrix();
+    this.scrollInfo.style.opacity = "0";
   }
 
   onDocumentMouseClick = (event: MouseEvent) => {
@@ -397,6 +454,39 @@ export default class AppComponent {
 
     tween.start();
     this.plateSound.play();
+  }
+
+  oldAdd = (element: HTMLElement, className: string) => {
+    let classes = element.className.split(' ')
+    if (classes.indexOf(className) < 0) {
+      classes.push(className)
+    }
+    element.className = classes.join(' ')
+  }
+
+  oldRemove = (element: HTMLElement, className: string) => {
+    let classes = element.className.split(' ')
+    const idx = classes.indexOf(className)
+    if (idx > -1) {
+      classes.splice(idx, 1)
+    }
+    element.className = classes.join(' ')
+  }
+
+  addClass = (element: HTMLElement, className: string) => {
+    if (element.classList) {
+      element.classList.add(className)
+    } else {
+      this.oldAdd(element, className)
+    }
+  }
+
+  removeClass = (element: HTMLElement, className: string) => {
+    if (element.classList) {
+      element.classList.remove(className)
+    } else {
+      this.oldRemove(element, className)
+    }
   }
 
   onTouchStart = (event: TouchEvent) => {
@@ -536,6 +626,48 @@ export default class AppComponent {
 
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.render);
+  }
+
+  b64toBlob = (b64Data: string, contentType: string = '', sliceSize: number = 512): Blob => {
+    var byteCharacters = atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      var byteNumbers = new Array(slice.length);
+      for (var i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      var byteArray = new Uint8Array(byteNumbers);
+
+      byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+  }
+
+  takeScreenshootAndSave = (): void => {
+    // var ctx = this.canvas.getContext('2d');
+    //
+    //    ctx.fillRect(25, 25, 100, 100);
+    //    ctx.clearRect(45, 45, 60, 60);
+    //    ctx.strokeRect(50, 50, 50, 50);
+
+
+    if (this.latestScreenShootBlobUrl) {
+      window.URL.revokeObjectURL(this.latestScreenShootBlobUrl);
+    }
+
+    let screenshotData = this.renderer.domElement.toDataURL("image/jpeg", 0.9);
+    // debugger;
+    screenshotData = screenshotData.replace("data:image/jpeg;base64,", "");
+
+    let blob = this.b64toBlob(screenshotData, "image/octet-stream");
+    this.latestScreenShootBlobUrl = URL.createObjectURL(blob);
+    this.screenshootButton.setAttribute("href", this.latestScreenShootBlobUrl);
   }
 }
 

@@ -34,14 +34,18 @@ var config = {
       },
       {
         test: /\.css$/,
-        loaders: ['style', 'css']
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.svg$/,
+        loader: 'raw-loader'
       },
       {
         test: /\.json$/,
         loader: "json-loader"
       },
       {
-        test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/,
+        test: /\.(jpe?g|gif|png|woff|ttf|wav|mp3)$/,
         loader: "file-loader",
         query: {
           useRelativePath: process.env.NODE_ENV === "production"
