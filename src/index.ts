@@ -40,6 +40,7 @@ export default class AppComponent {
   private touchSpeed = new THREE.Vector2();
 
   private INTERSECTED: Plate;
+  private hoveredPlate: Plate;
 
   private normalMaterial = new THREE.MeshNormalMaterial();
 
@@ -76,6 +77,8 @@ export default class AppComponent {
   private zoomStep = 0.005;
   private normZoom = 0;
   private preciseZoomEnabled = false;
+  private isZooming = false;
+  private zoomingTimer: number;
 
   private availableLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 
@@ -422,7 +425,49 @@ export default class AppComponent {
 
     this.camera.zoom = newZoomLevel;
     this.camera.updateProjectionMatrix();
+
     this.scrollInfo.style.opacity = "0";
+
+    if (this.isZooming === false) {
+      this.isZooming = true;
+      console.log("start-zoom");
+    } else {
+      clearTimeout(this.zoomingTimer);
+    }
+
+    const zoomDuration = 400;
+    this.zoomingTimer = setTimeout(() => {
+      this.isZooming = false;
+      console.log("end-zoom");
+    }, zoomDuration);
+
+    if (this.hoveredPlate) {
+      // debugger;
+      let distX = this.hoveredPlate.position.x - this.camera.position.x;
+      let distY = this.hoveredPlate.position.y - this.camera.position.y;
+      // this.camera.position.x += 0.1 * distX;
+      // this.camera.position.y += 0.1 * distY;
+
+      let zooming =  newNormZoom * 4;
+      if (zooming > 1)
+        zooming = 1;
+
+      this.camera.position.x = zooming * this.hoveredPlate.position.x;
+      this.camera.position.y = zooming * this.hoveredPlate.position.y;
+      // this.camera.position.z = (1 - zooming) * 60;
+      //
+      // var tween = new TWEEN.Tween({ x: zooming * this.camera.position.x, y: zooming * this.camera.position.y })
+      //   .to({ x: this.hoveredPlate.position.x, y: this.hoveredPlate.position.y}, 200)
+      //   .on('update', object => {
+      //     this.camera.position.x = object.x;
+      //     this.camera.position.y = object.y;
+      //   });
+      // tween.start();
+
+
+      // this.render();
+      // console.log(`${distX}  :  ${distY}   :   ${this.camera.position.z}`);
+    }
   }
 
   onDocumentMouseClick = (event: MouseEvent) => {
@@ -577,6 +622,7 @@ export default class AppComponent {
       // debugger;
 
       let hitPlate = intersects[0].object.parent as Plate;
+      this.hoveredPlate = hitPlate;
 
       if (hitPlate.isInteractive == false)
         return;
@@ -620,7 +666,7 @@ export default class AppComponent {
   render = (): void => {
     TWEEN.update();
     // find intersections
-    if (this.mouse != undefined) {
+    if (this.mouse != undefined && !this.isZooming) {
       this.calcInteraction();
     }
 
