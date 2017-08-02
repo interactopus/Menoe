@@ -29,7 +29,7 @@ export default class AppComponent {
   canvas: HTMLCanvasElement;
 
   private scene: THREE.Scene;
-  private camera: THREE.OrthographicCamera;
+  private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
   private raycaster: THREE.Raycaster;
 
@@ -114,10 +114,10 @@ export default class AppComponent {
     this.setOptimalZoomStep();
     this.setOptimalPlateSizeByBrowser();
 
-    // this.camera = new THREE.PerspectiveCamera(25, ratio, 1, 5000);
-    const cameraFactor = 60;
-    this.camera = new THREE.OrthographicCamera(-this.canvasWidth / cameraFactor, this.canvasWidth / cameraFactor, this.canvasHeight / cameraFactor, -this.canvasHeight / cameraFactor, 0, 100);
+    // const cameraFactor = 60;
+    // this.camera = new THREE.OrthographicCamera(-this.canvasWidth / cameraFactor, this.canvasWidth / cameraFactor, this.canvasHeight / cameraFactor, -this.canvasHeight / cameraFactor, 0, 100);
 
+    this.camera = new THREE.PerspectiveCamera(25, ratio, 1, 5000);
     this.camera.position.set(0, 0, 60);;
 
     this.raycaster = new THREE.Raycaster();
@@ -416,15 +416,15 @@ export default class AppComponent {
     if (this.preciseZoomEnabled)
       easingFunc = t => t;
     else
-      easingFunc = (t: number): number => { return t * t * t };
+      easingFunc = (t: number): number => { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 };
 
     let newZoomLevel = this.minZoom + easingFunc(newNormZoom) * (this.maxZoom - this.minZoom);
 
     newZoomLevel = Math.round(newZoomLevel * 100) / 100;
-    console.log("normZoom " + this.normZoom + " | zoom  " + newZoomLevel);
+    // console.log("normZoom " + this.normZoom + " | zoom  " + newZoomLevel);
 
-    this.camera.zoom = newZoomLevel;
-    this.camera.updateProjectionMatrix();
+    // this.camera.zoom = newZoomLevel;
+    // this.camera.updateProjectionMatrix();
 
     this.scrollInfo.style.opacity = "0";
 
@@ -448,12 +448,11 @@ export default class AppComponent {
       // this.camera.position.x += 0.1 * distX;
       // this.camera.position.y += 0.1 * distY;
 
-      let zooming =  newNormZoom * 4;
-      if (zooming > 1)
-        zooming = 1;
+      let zooming = easingFunc(newNormZoom);
 
       this.camera.position.x = zooming * this.hoveredPlate.position.x;
       this.camera.position.y = zooming * this.hoveredPlate.position.y;
+      this.camera.position.z = 10 + 50 * (1 - zooming) + zooming * this.hoveredPlate.position.z;
       // this.camera.position.z = (1 - zooming) * 60;
       //
       // var tween = new TWEEN.Tween({ x: zooming * this.camera.position.x, y: zooming * this.camera.position.y })
