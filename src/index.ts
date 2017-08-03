@@ -109,7 +109,6 @@ export default class AppComponent {
     this.scene = new THREE.Scene();
 
     let zoom = window.devicePixelRatio;
-    let ratio = this.canvasWidth / this.canvasHeight;
 
     this.setOptimalZoomStep();
     this.setOptimalPlateSizeByBrowser();
@@ -117,8 +116,9 @@ export default class AppComponent {
     // const cameraFactor = 60;
     // this.camera = new THREE.OrthographicCamera(-this.canvasWidth / cameraFactor, this.canvasWidth / cameraFactor, this.canvasHeight / cameraFactor, -this.canvasHeight / cameraFactor, 0, 100);
 
-    this.camera = new THREE.PerspectiveCamera(25, ratio, 1, 5000);
-    this.camera.position.set(0, 0, 60);;
+    const fov = 25;
+    const ratio = this.canvasWidth / this.canvasHeight;
+    this.camera = new THREE.PerspectiveCamera(fov, ratio, 1, 5000);
 
     this.raycaster = new THREE.Raycaster();
 
@@ -301,8 +301,11 @@ export default class AppComponent {
   }
 
   fillSceneWithPlates = (): void => {
-    const webGlScreenWidth = this.canvasWidth / 30;
-    const webGlScreenHeight = this.canvasHeight / 30;
+    const sceneRatio = 30;
+    const webGlScreenWidth = this.canvasWidth / sceneRatio;
+    const webGlScreenHeight = this.canvasHeight / sceneRatio;
+
+    // debugger;
 
     const columnCount = Math.ceil(webGlScreenWidth / (this.cubeWidth + this.gap));
     const rowCount = Math.ceil(webGlScreenHeight / (this.cubeHeight + this.gap));
@@ -324,6 +327,9 @@ export default class AppComponent {
         this.scene.add(cube);
       }
     }
+
+    let dist = fullHeight / Math.tan(this.camera.fov * Math.PI / 180);
+    this.camera.position.set(0, 0, dist);
   }
 
   createPlateMesh = (): Plate => {
@@ -416,7 +422,7 @@ export default class AppComponent {
     if (this.preciseZoomEnabled)
       easingFunc = t => t;
     else
-      easingFunc = (t: number): number => { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 };
+      easingFunc = (t: number): number => { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 };
 
     let newZoomLevel = this.minZoom + easingFunc(newNormZoom) * (this.maxZoom - this.minZoom);
 
@@ -443,8 +449,8 @@ export default class AppComponent {
 
     if (this.hoveredPlate) {
       // debugger;
-      let distX = this.hoveredPlate.position.x - this.camera.position.x;
-      let distY = this.hoveredPlate.position.y - this.camera.position.y;
+      // let distX = this.hoveredPlate.position.x - this.camera.position.x;
+      // let distY = this.hoveredPlate.position.y - this.camera.position.y;
       // this.camera.position.x += 0.1 * distX;
       // this.camera.position.y += 0.1 * distY;
 
