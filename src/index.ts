@@ -1,14 +1,15 @@
 declare function require(path: string): any;
+declare const FB: fb.FacebookStatic;
 
 import * as THREE from 'three';
 import { Plate } from "./plate";
 import { BrowserDetector } from "./browserDetector";
-import { Howl }  from 'howler';
+import { Howl } from 'howler';
 
 let TWEEN = require('./assets/Tween.js');
 let Complex = require('three-simplicial-complex')(THREE)
 
-var flipSoundPath = require("./assets/flip.mp3");
+let flipSoundPath = require("./assets/flip.mp3");
 // require("file-loader?name=favicon.ico!./favicon.ico")
 // require("file-loader?name=share.png!./share.png")
 
@@ -21,6 +22,7 @@ require("file-loader?name=pace.min.js!./assets/pace.min.js")
 
 //стили страницы
 require("./assets/site.css")
+
 
 /* Code */
 
@@ -344,7 +346,7 @@ export default class AppComponent {
     // debugger;
     frontLetterMesh.scale.set(this.fontGeomScale, this.fontGeomScale, 1);
     frontLetterMesh.updateMatrix();
-    var frontBox = new THREE.Box3().setFromObject(frontLetterMesh).getSize();
+    let frontBox = new THREE.Box3().setFromObject(frontLetterMesh).getSize();
 
     frontLetterMesh.position.x = -0.38 * this.cubeWidth;
     frontLetterMesh.position.y = 0.33 * this.cubeHeight;
@@ -461,7 +463,7 @@ export default class AppComponent {
       this.camera.position.z = 10 + 50 * (1 - zooming) + zooming * this.hoveredPlate.position.z;
       // this.camera.position.z = (1 - zooming) * 60;
       //
-      // var tween = new TWEEN.Tween({ x: zooming * this.camera.position.x, y: zooming * this.camera.position.y })
+      // let tween = new TWEEN.Tween({ x: zooming * this.camera.position.x, y: zooming * this.camera.position.y })
       //   .to({ x: this.hoveredPlate.position.x, y: this.hoveredPlate.position.y}, 200)
       //   .on('update', object => {
       //     this.camera.position.x = object.x;
@@ -483,7 +485,7 @@ export default class AppComponent {
 
     this.raycaster.setFromCamera(coord, this.camera);
 
-    var intersects = this.raycaster.intersectObjects(this.colliders, false);
+    let intersects = this.raycaster.intersectObjects(this.colliders, false);
     if (intersects.length < 1)
       return;
 
@@ -496,7 +498,7 @@ export default class AppComponent {
     if (newRotation == hitPlate.rotation.y)
       return;
 
-    var tween = new TWEEN.Tween({ y: hitPlate.rotation.y })
+    let tween = new TWEEN.Tween({ y: hitPlate.rotation.y })
       .to({ y: newRotation }, 400)
       .on('update', object => {
         hitPlate.rotation.y = object.y;
@@ -594,7 +596,7 @@ export default class AppComponent {
     let rotation = rawRotation % 360;
     let gapAmplitude = 30;
 
-    var resultSign = Math.sign(rotation);
+    let resultSign = Math.sign(rotation);
 
     if (Math.abs(rotation) > 90 - gapAmplitude && Math.abs(rotation) < 90 + gapAmplitude) {
       rotation = resultSign * (90 + gapAmplitude);
@@ -622,7 +624,7 @@ export default class AppComponent {
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
-    var intersects = this.raycaster.intersectObjects(this.colliders, false);
+    let intersects = this.raycaster.intersectObjects(this.colliders, false);
     if (intersects.length > 0) {
       // debugger;
 
@@ -639,7 +641,7 @@ export default class AppComponent {
         let angleDegTo = this.calcNewRotationAngleFor(angleFrom);
         let angleTo = angleDegTo * Math.PI / 180;
 
-        if (angleDegFrom == angleDegTo)
+        if (angleDegFrom === angleDegTo)
           return;
 
         hitPlate.isInteractive = false;
@@ -647,7 +649,7 @@ export default class AppComponent {
 
         let obj = this.INTERSECTED;
 
-        var tween = new TWEEN.Tween({ y: angleFrom })
+        let tween = new TWEEN.Tween({ y: angleFrom })
           .to({ y: angleTo }, 400)
           .on('update', object => {
             obj.rotation.y = object.y;
@@ -671,7 +673,7 @@ export default class AppComponent {
   render = (): void => {
     TWEEN.update();
     // find intersections
-    if (this.mouse != undefined && !this.isZooming) {
+    if (this.mouse !== undefined && !this.isZooming) {
       this.calcInteraction();
     }
 
@@ -680,28 +682,28 @@ export default class AppComponent {
   }
 
   b64toBlob = (b64Data: string, contentType: string = '', sliceSize: number = 512): Blob => {
-    var byteCharacters = atob(b64Data);
-    var byteArrays = [];
+    let byteCharacters = atob(b64Data);
+    let byteArrays = [];
 
-    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      var slice = byteCharacters.slice(offset, offset + sliceSize);
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      let slice = byteCharacters.slice(offset, offset + sliceSize);
 
-      var byteNumbers = new Array(slice.length);
-      for (var i = 0; i < slice.length; i++) {
+      let byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
         byteNumbers[i] = slice.charCodeAt(i);
       }
 
-      var byteArray = new Uint8Array(byteNumbers);
+      let byteArray = new Uint8Array(byteNumbers);
 
       byteArrays.push(byteArray);
     }
 
-    var blob = new Blob(byteArrays, { type: contentType });
+    let blob = new Blob(byteArrays, { type: contentType });
     return blob;
   }
 
   takeScreenshootAndSave = (): void => {
-    // var ctx = this.canvas.getContext('2d');
+    // let ctx = this.canvas.getContext('2d');
     //
     //    ctx.fillRect(25, 25, 100, 100);
     //    ctx.clearRect(45, 45, 60, 60);
@@ -714,11 +716,36 @@ export default class AppComponent {
 
     let screenshotData = this.renderer.domElement.toDataURL("image/jpeg", 0.9);
     // debugger;
-    screenshotData = screenshotData.replace("data:image/jpeg;base64,", "");
+    // screenshotData = screenshotData.replace("data:image/jpeg;base64,", "");
 
-    let blob = this.b64toBlob(screenshotData, "image/octet-stream");
-    this.latestScreenShootBlobUrl = URL.createObjectURL(blob);
-    this.screenshootButton.setAttribute("href", this.latestScreenShootBlobUrl);
+    // let blob = this.b64toBlob(screenshotData, "image/octet-stream");
+    // this.latestScreenShootBlobUrl = URL.createObjectURL(blob);
+    // this.screenshootButton.setAttribute("href", this.latestScreenShootBlobUrl);
+
+
+    const serverShareUrl = "https://type.today/api/v1/collab/share_page";
+    const parameters = "";
+
+    const sendImageRequest = new XMLHttpRequest();
+
+    sendImageRequest.onreadystatechange = () => {
+      debugger;
+      if (sendImageRequest.readyState === 4 && sendImageRequest.status === 200) {
+        console.log("ok");
+      }
+    }
+
+    const data = {
+      type: "share_images",
+      attributes: {
+        image_data_uri: screenshotData
+      }
+    }
+
+    const jsonData = JSON.stringify(data);
+
+    sendImageRequest.open("post", `${serverShareUrl}`);
+    sendImageRequest.send(jsonData);
   }
 }
 
