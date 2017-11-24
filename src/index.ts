@@ -736,9 +736,11 @@ export default class AppComponent {
     }
 
     const data = {
-      type: "share_images",
-      attributes: {
-        image_data_uri: screenshotData
+      data: {
+        type: "share_images",
+        attributes: {
+          image_data_uri: screenshotData
+        }
       }
     }
 
