@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { Plate } from "./plate";
 import { BrowserDetector } from "./browserDetector";
 import { Howl } from 'howler';
+import { error } from 'three';
 
 let TWEEN = require('./assets/Tween.js');
 let Complex = require('three-simplicial-complex')(THREE)
@@ -495,7 +496,7 @@ export default class AppComponent {
     if (hitPlate.rotation.y == 0)
       newRotation = Math.PI;
 
-    if (newRotation == hitPlate.rotation.y)
+    if (newRotation === hitPlate.rotation.y)
       return;
 
     let tween = new TWEEN.Tween({ y: hitPlate.rotation.y })
@@ -542,7 +543,7 @@ export default class AppComponent {
   }
 
   onTouchStart = (event: TouchEvent) => {
-    if (this.mouse == undefined) {
+    if (this.mouse === undefined) {
       this.mouse = new THREE.Vector2();
     }
 
@@ -553,7 +554,7 @@ export default class AppComponent {
   }
 
   onTouchMove = (event: TouchEvent) => {
-    if (this.mouse == undefined) {
+    if (this.mouse === undefined) {
       this.mouse = new THREE.Vector2();
     }
 
@@ -583,13 +584,13 @@ export default class AppComponent {
 
     let rotationAmplitude = Math.abs(speedX * zoomLevel);
 
-    if (sign == 0) {
+    if (sign === 0) {
       sign = 1;
     }
 
     let rawRotation = currentRotation + sign * Math.round(minPlateRotation + rotationAmplitude);
 
-    if (isNaN(rawRotation) || rawRotation == undefined) {
+    if (isNaN(rawRotation) || rawRotation === undefined) {
       rawRotation = 0;
     }
 
@@ -631,10 +632,10 @@ export default class AppComponent {
       let hitPlate = intersects[0].object.parent as Plate;
       this.hoveredPlate = hitPlate;
 
-      if (hitPlate.isInteractive == false)
+      if (hitPlate.isInteractive === false)
         return;
 
-      if (this.INTERSECTED != hitPlate) {
+      if (this.INTERSECTED !== hitPlate) {
         let angleFrom = hitPlate.rotation.y;
         let angleDegFrom = angleFrom * 180 / Math.PI;
 
@@ -728,7 +729,6 @@ export default class AppComponent {
 
     const sendImageRequest = new XMLHttpRequest();
 
-
     const data = {
       data: {
         type: "share_images",
@@ -743,10 +743,32 @@ export default class AppComponent {
     sendImageRequest.open("post", `${serverShareUrl}`);
     sendImageRequest.onreadystatechange = () => {
       debugger;
-      console.log("okГПЛиР?");      
-      if (sendImageRequest.readyState === 4 && sendImageRequest.status === 200) {
-        console.log("ok");
+      if (sendImageRequest.readyState !== 4)
+        return;
+
+      if (sendImageRequest.status !== 200 && sendImageRequest.status !== 201) {
+        alert("Ошибка загрузки картинки");
+        return;
       }
+
+      const responseObject: any = JSON.parse(sendImageRequest.responseText);
+      const imageUrl = "https:" + responseObject.data.attributes.image.url;
+      const title = document.querySelector("meta[property='og:title']").getAttribute("content");
+      const description = document.querySelector("meta[property='og:description']").getAttribute("content");
+
+      const encodedTitle = encodeURIComponent(title);
+      const encodedDescription = encodeURIComponent(description);
+
+
+
+      FB.ui({
+        method: 'share',
+        href: `https://type.today/api/v1/collab/share_page?title={encodedTitle}&description=${encodedDescription}&image=${imageUrl}&no_redirect=1`,
+      }, function (response) {
+        debugger;
+        throw new error("asdfasdf")
+       });
+
     }
     sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
     sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
