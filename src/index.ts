@@ -758,8 +758,10 @@ export default class AppComponent {
 
       const encodedTitle = encodeURIComponent(title);
       const encodedDescription = encodeURIComponent(description);
+      const decodedRedirectUrl = encodeURIComponent(window.location.href);
 
-      const shareUrl = `https://type.today/api/v1/collab/share_page?title={encodedTitle}&description=${encodedDescription}&image=${imageUrl}&no_redirect=1`;
+      const shareUrl = `https://type.today/api/v1/collab/share_page?title=${encodedTitle}&desc=${encodedDescription}&image=${imageUrl}&redirect=${decodedRedirectUrl}&no_redirect=0&`;
+      console.log(`share url: ${shareUrl}`)
 
       FB.ui({
         method: 'share',
