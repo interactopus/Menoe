@@ -759,15 +759,16 @@ export default class AppComponent {
       const encodedTitle = encodeURIComponent(title);
       const encodedDescription = encodeURIComponent(description);
 
-
+      const shareUrl = `https://type.today/api/v1/collab/share_page?title={encodedTitle}&description=${encodedDescription}&image=${imageUrl}&no_redirect=1`;
 
       FB.ui({
         method: 'share',
-        href: `https://type.today/api/v1/collab/share_page?title={encodedTitle}&description=${encodedDescription}&image=${imageUrl}&no_redirect=1`,
-      }, function (response) {
+        mobile_iframe: true,
+        href: shareUrl,
+      }, (response) => {
         debugger;
-        throw new error("asdfasdf")
-       });
+        throw new Error("asdfasdf")
+      });
 
     }
     sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
