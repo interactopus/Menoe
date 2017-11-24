@@ -723,7 +723,7 @@ export default class AppComponent {
     // this.screenshootButton.setAttribute("href", this.latestScreenShootBlobUrl);
 
 
-    const serverShareUrl = "https://type.today/api/v1/collab/share_page";
+    const serverShareUrl = "https://type.today/api/v1/collab/share_images";
     const parameters = "";
 
     const sendImageRequest = new XMLHttpRequest();
