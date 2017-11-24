@@ -760,7 +760,7 @@ export default class AppComponent {
       const encodedDescription = encodeURIComponent(description);
       const decodedRedirectUrl = encodeURIComponent(window.location.href);
 
-      const shareUrl = `https://type.today/api/v1/collab/share_page?title=${encodedTitle}&desc=${encodedDescription}&image=${imageUrl}&redirect=${decodedRedirectUrl}&no_redirect=0&`;
+      const shareUrl = `https://type.today/api/v1/collab/share_page?title=${encodedTitle}&desc=${encodedDescription}&image=${imageUrl}&redirect=${decodedRedirectUrl}`;
       console.log(`share url: ${shareUrl}`)
 
       FB.ui({
@@ -769,7 +769,9 @@ export default class AppComponent {
         href: shareUrl,
       }, (response) => {
         debugger;
-        throw new Error("asdfasdf")
+        console.log("fb response");
+        console.log(response);
+        // throw new Error("asdfasdf")
       });
 
     }
