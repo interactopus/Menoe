@@ -746,7 +746,7 @@ export default class AppComponent {
 
     sendImageRequest.open("post", `${serverShareUrl}`);
     sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
-    // sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
+    sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
     sendImageRequest.send(jsonData);
   }
 }
