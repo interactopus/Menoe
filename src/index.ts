@@ -728,12 +728,6 @@ export default class AppComponent {
 
     const sendImageRequest = new XMLHttpRequest();
 
-    sendImageRequest.onreadystatechange = () => {
-      debugger;
-      if (sendImageRequest.readyState === 4 && sendImageRequest.status === 200) {
-        console.log("ok");
-      }
-    }
 
     const data = {
       data: {
@@ -747,6 +741,13 @@ export default class AppComponent {
     const jsonData = JSON.stringify(data);
 
     sendImageRequest.open("post", `${serverShareUrl}`);
+    sendImageRequest.onreadystatechange = () => {
+      debugger;
+      console.log("okГПЛиР?");      
+      if (sendImageRequest.readyState === 4 && sendImageRequest.status === 200) {
+        console.log("ok");
+      }
+    }
     sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
     sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
     sendImageRequest.send(jsonData);
