@@ -745,6 +745,8 @@ export default class AppComponent {
     const jsonData = JSON.stringify(data);
 
     sendImageRequest.open("post", `${serverShareUrl}`);
+    sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
+    sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
     sendImageRequest.send(jsonData);
   }
 }
