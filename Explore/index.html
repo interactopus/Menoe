@@ -90,10 +90,101 @@
     .pace.pace-inactive {
       display: none;
     }
+
+    @import url(https://fonts.googleapis.com/css?family=Lato:300,400);
+    body {
+      background-color: #2a2a2a;
+      margin: 0;
+    }
+
+    .container {
+      text-align: center;
+      font-family: 'Lato';
+      color: #fff;
+    }
+    /* linear loading */
+
+    .bar-container {
+      position: relative;
+      height: 5px;
+      width: 100%;
+      background-color: #bdbdbd;
+      z-index: 1000;
+    }
+
+    .bar {
+      content: "";
+      display: inline;
+      position: absolute;
+      height: 100%;
+      width: 0;
+      right: 0;
+    }
+
+    .bar:nth-child(1) {
+      background-color: white;
+      animation: linear_loader 3s ease-in 1s infinite;
+    }
+
+    .bar:nth-child(2) {
+      background-color: white;
+      animation: linear_loader 3s ease-in 2s infinite;
+    }
+
+    .bar:nth-child(3) {
+      background-color: white;
+      animation: linear_loader 3s ease-in 3s infinite;
+    }
+
+    @keyframes linear_loader {
+      0% {
+        right: 90%;
+        width: 10%;
+      }
+      30% {
+        right: 0%;
+        width: 40%;
+      }
+      50% {
+        right: 0%;
+        width: 0%;
+      }
+      80% {
+        right: 0%;
+        width: 0%;
+      }
+      100% {
+        right: 0%;
+        width: 0%;
+      }
+    }
+    /* end linear loading */
+
+    #loading-bar-central {
+      position: fixed;
+      z-index: 10000;
+      height: 6pt;
+      width: 150pt;
+      border: 1pt solid black;
+      top: 50%;
+      left: 50%;
+      margin-left: -75pt;
+      margin-top: -3pt;
+      background-color: black;
+    }
+
   </style>
 <link rel="shortcut icon" href="favicon.ico"></head>
 
 <body>
+  <!-- loader -->
+  <div id="loading-bar-central" class="bar-container" style="display:none">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
   <!-- Navbar -->
   <div class="top-menu hidden-at-start">
     <a id="clearButton" class="svg-container"></a>
@@ -130,22 +221,26 @@
 
   <!-- facebook api -->
   <script>
-    window.fbAsyncInit = function() {
+    window.fbAsyncInit = function () {
       FB.init({
-        appId            : '151474978940341',
-        autoLogAppEvents : true,
-        xfbml            : true,
-        version          : 'v2.11'
+        appId: '151474978940341',
+        autoLogAppEvents: true,
+        xfbml: true,
+        version: 'v2.11'
       });
     };
-  
-    (function(d, s, id){
-       var js, fjs = d.getElementsByTagName(s)[0];
-       if (d.getElementById(id)) {return;}
-       js = d.createElement(s); js.id = id;
-       js.src = "https://connect.facebook.net/en_US/sdk.js";
-       fjs.parentNode.insertBefore(js, fjs);
-     }(document, 'script', 'facebook-jssdk'));
+
+    (function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {
+        return;
+      }
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
   </script>
 <script type="text/javascript" src="vendor.bundle.js"></script><script type="text/javascript" src="app.bundle.js"></script></body>
 

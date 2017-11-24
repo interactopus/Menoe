@@ -96,6 +96,7 @@ export default class AppComponent {
   private zoomInButton: HTMLElement;
   private zoomOutButton: HTMLElement;
   private scrollInfo: HTMLElement;
+  private loadingIndicator: HTMLElement;
 
   constructor() {
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -234,6 +235,7 @@ export default class AppComponent {
     this.screenshootButton = this.insertHtml("screenshootButton", require('./assets/ui/capture.svg'));
     // this.zoomInButton = this.insertHtml("zoomInButton", require('./assets/ui/zoom_in.svg'));
     // this.zoomOutButton = this.insertHtml("zoomOutButton", require('./assets/ui/zoom_out.svg'));
+    this.loadingIndicator = document.getElementById("loading-bar-central");
   }
 
   bindWheelEvents = (): void => {
@@ -710,10 +712,11 @@ export default class AppComponent {
     //    ctx.clearRect(45, 45, 60, 60);
     //    ctx.strokeRect(50, 50, 50, 50);
 
+    this.loadingIndicator.style.display = "hidden";
 
-    if (this.latestScreenShootBlobUrl) {
-      window.URL.revokeObjectURL(this.latestScreenShootBlobUrl);
-    }
+    // if (this.latestScreenShootBlobUrl) {
+    //   window.URL.revokeObjectURL(this.latestScreenShootBlobUrl);
+    // }
 
     let screenshotData = this.renderer.domElement.toDataURL("image/jpeg", 0.9);
     // debugger;
@@ -748,6 +751,7 @@ export default class AppComponent {
 
       if (sendImageRequest.status !== 200 && sendImageRequest.status !== 201) {
         alert("Ошибка загрузки картинки");
+        this.loadingIndicator.style.display = "none";
         return;
       }
 
@@ -768,16 +772,17 @@ export default class AppComponent {
         mobile_iframe: true,
         href: shareUrl,
       }, (response) => {
-        debugger;
-        console.log("fb response");
-        console.log(response);
-        // throw new Error("asdfasdf")
+        // debugger;
+        // console.log("fb response");
+        // console.log(response);
+        this.loadingIndicator.style.display = "none";
       });
 
     }
     sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
     sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
     sendImageRequest.send(jsonData);
+    this.loadingIndicator.style.display = "inherit";
   }
 }
 
