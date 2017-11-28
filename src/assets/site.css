@@ -1,7 +1,7 @@
 canvas {
   height: 100vh;
   width: 100vw;
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .svg-container {
@@ -25,23 +25,36 @@ canvas {
   padding-bottom: 12pt;
   background-color: black;
   z-index: 3000;
-  padding:
 }
 
-.top-menu a.svg-container, #closeAboutButton {
+.top-menu a.svg-container,
+.closeWindowButton {
   height: 14.5pt;
+}
+
+#facebookShareButton {
+  height: 29pt;
+  margin-top: 20px;
 }
 
 .top-menu a.svg-container:not(:first-child) {
   margin-left: 10pt;
 }
 
-.top-menu a.svg-container svg, #typetodayButton svg, .author-links a svg, #closeAboutButton svg {
+.top-menu a.svg-container svg,
+#typetodayButton svg,
+#facebookShareButton svg,
+.author-links a svg,
+.closeWindowButton svg {
   fill: white;
   height: inherit;
 }
 
-.top-menu a.svg-container:hover svg, #typetodayButton:hover svg, .author-links a:hover svg, #closeAboutButton:hover svg {
+.top-menu a.svg-container:hover svg,
+#typetodayButton:hover svg,
+#facebookShareButton:hover svg,
+.author-links a:hover svg,
+.closeWindowButton:hover svg {
   fill: silver;
 }
 
@@ -83,11 +96,31 @@ canvas {
   opacity: 1;
 }
 
-#about.hidden {
+#shareWindow {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  /* height: 200px; */
+  margin-top: -165px;
+  margin-left: -200px;
+  background-color: rgb(27, 4, 4);
+  transition: all .5s ease-in-out;
+  padding: 40px;
+  padding-top: 60px;
+  opacity: 1;
+  text-align: center;
+}
+
+img.sharePreview {
+  width: 100%;
+}
+
+#about.hidden, #shareWindow.hidden {
   opacity: 0;
 }
 
-#closeAboutButton {
+.closeWindowButton {
   position: absolute;
   right: 12pt;
   top: 12pt;
@@ -108,7 +141,8 @@ canvas {
   margin-bottom: 30pt;
 }
 
-#aboutHeader svg, #interactopusLogo svg {
+#aboutHeader svg,
+#interactopusLogo svg {
   fill: white;
 }
 

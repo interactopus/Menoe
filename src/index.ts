@@ -21,7 +21,7 @@ let flipSoundPath = require("./assets/flip.mp3");
 // require("file-loader?name=favicon-32x32.png!./favicon-32x32.png")
 require("file-loader?name=pace.min.js!./assets/pace.min.js")
 
-//стили страницы
+// стили страницы
 require("./assets/site.css")
 
 
@@ -93,10 +93,15 @@ export default class AppComponent {
   private screenshootButton: HTMLElement;
   private aboutButton: HTMLElement;
   private closeAboutButton: HTMLElement;
+  private closeShareButton: HTMLElement;
   private zoomInButton: HTMLElement;
   private zoomOutButton: HTMLElement;
   private scrollInfo: HTMLElement;
   private loadingIndicator: HTMLElement;
+  private shareWindow: HTMLElement;
+  private sharePreviewElement: HTMLImageElement;
+  private facebookShareButton: HTMLElement;
+  private facebookShareUrl = "";
 
   constructor() {
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -232,10 +237,15 @@ export default class AppComponent {
     this.clearButton = this.insertHtml("clearButton", require('./assets/ui/clear.svg'));
     this.aboutButton = this.insertHtml("aboutButton", require('./assets/ui/by_interactopus.svg'));
     this.closeAboutButton = this.insertHtml("closeAboutButton", require('./assets/ui/close.svg'));
+    this.closeShareButton = this.insertHtml("closeShareButton", require('./assets/ui/close.svg'));
     this.screenshootButton = this.insertHtml("screenshootButton", require('./assets/ui/capture.svg'));
+    this.facebookShareButton = this.insertHtml("facebookShareButton", require('./assets/ui/share.svg'));
+
     // this.zoomInButton = this.insertHtml("zoomInButton", require('./assets/ui/zoom_in.svg'));
     // this.zoomOutButton = this.insertHtml("zoomOutButton", require('./assets/ui/zoom_out.svg'));
     this.loadingIndicator = document.getElementById("loading-bar-central");
+    this.sharePreviewElement = document.getElementById("sharePreview") as HTMLImageElement;
+    this.shareWindow = document.getElementById("shareWindow");
   }
 
   bindWheelEvents = (): void => {
@@ -262,7 +272,10 @@ export default class AppComponent {
     this.canvas.addEventListener("touchstart", this.onTouchStart, false);
     this.canvas.addEventListener("touchmove", this.onTouchMove, false);
 
-    let aboutEl = document.getElementById("about");
+    this.facebookShareButton.addEventListener('click', this.shareOnFacebook, false);
+
+
+    const aboutEl = document.getElementById("about");
 
     this.aboutButton.addEventListener("click", () => {
       aboutEl.style.display = 'initial';
@@ -277,6 +290,16 @@ export default class AppComponent {
         aboutEl.removeEventListener("transitionend", transitionEndListener);
       }
       aboutEl.addEventListener("transitionend", transitionEndListener);
+    });
+
+    this.closeShareButton.addEventListener("click", () => {
+      this.addClass(this.shareWindow, "hidden");
+
+      let transitionEndListener = () => {
+        this.shareWindow.style.display = 'none';
+        this.shareWindow.removeEventListener("transitionend", transitionEndListener);
+      }
+      this.shareWindow.addEventListener("transitionend", transitionEndListener);
     });
 
     // возврат плашек в начальное состояние
@@ -745,44 +768,63 @@ export default class AppComponent {
 
     sendImageRequest.open("post", `${serverShareUrl}`);
     sendImageRequest.onreadystatechange = () => {
-      debugger;
       if (sendImageRequest.readyState !== 4)
         return;
 
       if (sendImageRequest.status !== 200 && sendImageRequest.status !== 201) {
         alert("Ошибка загрузки картинки");
-        this.loadingIndicator.style.display = "none";
+        this.hideLoadingBar();
         return;
       }
 
       const responseObject: any = JSON.parse(sendImageRequest.responseText);
       const imageUrl = "https:" + responseObject.data.attributes.image.url;
-      const title = document.querySelector("meta[property='og:title']").getAttribute("content");
-      const description = document.querySelector("meta[property='og:description']").getAttribute("content");
+      this.facebookShareUrl = imageUrl;
+      this.hideLoadingBar();
 
-      const encodedTitle = encodeURIComponent(title);
-      const encodedDescription = encodeURIComponent(description);
-      const decodedRedirectUrl = encodeURIComponent(window.location.href);
-
-      const shareUrl = `https://type.today/api/v1/collab/share_page?title=${encodedTitle}&desc=${encodedDescription}&image=${imageUrl}&redirect=${decodedRedirectUrl}`;
-      console.log(`share url: ${shareUrl}`)
-
-      FB.ui({
-        method: 'share',
-        mobile_iframe: true,
-        href: shareUrl,
-      }, (response) => {
-        // debugger;
-        // console.log("fb response");
-        // console.log(response);
-        this.loadingIndicator.style.display = "none";
-      });
-
+      this.sharePreviewElement.src = imageUrl;
+      this.shareWindow.style.display = 'initial';
+      setTimeout(() => this.removeClass(this.shareWindow, "hidden"));
     }
     sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
     sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
     sendImageRequest.send(jsonData);
+    this.showLoadingBar();
+  }
+
+  showLoadingBar = (): void => {
     this.loadingIndicator.style.display = "inherit";
+  }
+
+  hideLoadingBar = (): void => {
+    this.loadingIndicator.style.display = "none";
+  }
+
+  shareOnFacebook = (): void => {
+    const title = document.querySelector("meta[property='og:title']").getAttribute("content");
+    const description = document.querySelector("meta[property='og:description']").getAttribute("content");
+
+    const encodedTitle = encodeURIComponent(title);
+    const encodedDescription = encodeURIComponent(description);
+    const decodedRedirectUrl = encodeURIComponent(window.location.href);
+    const imageUrl = this.facebookShareUrl;
+
+    const shareUrl = `https://type.today/api/v1/collab/share_page?title=${encodedTitle}&desc=${encodedDescription}&image=${imageUrl}&redirect=${decodedRedirectUrl}`;
+    console.log(`share url: ${shareUrl}`)
+
+    const facebookCallback = (respone: fb.ShareDialogResponse) => {
+      this.hideLoadingBar();
+    };
+
+    const fbShareParameters: fb.ShareDialogParams = {
+      method: 'share',
+      mobile_iframe: true,
+      href: shareUrl,
+    };
+
+    FB.ui(fbShareParameters, facebookCallback);
+
+    this.showLoadingBar();
   }
 }
 
