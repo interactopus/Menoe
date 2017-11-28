@@ -98,6 +98,7 @@ export default class AppComponent {
   private zoomOutButton: HTMLElement;
   private scrollInfo: HTMLElement;
   private loadingIndicator: HTMLElement;
+  private aboutWindow: HTMLElement;
   private shareWindow: HTMLElement;
   private sharePreviewElement: HTMLImageElement;
   private facebookShareButton: HTMLElement;
@@ -273,34 +274,12 @@ export default class AppComponent {
     this.canvas.addEventListener("touchmove", this.onTouchMove, false);
 
     this.facebookShareButton.addEventListener('click', this.shareOnFacebook, false);
+    this.aboutWindow = document.getElementById("about");
 
+    this.aboutButton.addEventListener("click", this.showAboutWindow);
 
-    const aboutEl = document.getElementById("about");
-
-    this.aboutButton.addEventListener("click", () => {
-      aboutEl.style.display = 'initial';
-      setTimeout(() => this.removeClass(aboutEl, "hidden"));
-    });
-
-    this.closeAboutButton.addEventListener("click", () => {
-      this.addClass(aboutEl, "hidden");
-
-      let transitionEndListener = () => {
-        aboutEl.style.display = 'none';
-        aboutEl.removeEventListener("transitionend", transitionEndListener);
-      }
-      aboutEl.addEventListener("transitionend", transitionEndListener);
-    });
-
-    this.closeShareButton.addEventListener("click", () => {
-      this.addClass(this.shareWindow, "hidden");
-
-      let transitionEndListener = () => {
-        this.shareWindow.style.display = 'none';
-        this.shareWindow.removeEventListener("transitionend", transitionEndListener);
-      }
-      this.shareWindow.addEventListener("transitionend", transitionEndListener);
-    });
+    this.closeAboutButton.addEventListener("click", this.hideAboutWindow);
+    this.closeShareButton.addEventListener("click", this.hideShareWindow);
 
     // возврат плашек в начальное состояние
     this.clearButton.addEventListener("click", this.clearRotations);
@@ -310,6 +289,44 @@ export default class AppComponent {
       this.render();
       this.takeScreenshootAndSave();
     });
+  }
+
+  hideAboutWindow = (): void => {
+    if (this.aboutWindow.classList.contains("hidden"))
+      return;
+
+    this.addClass(this.aboutWindow, "hidden");
+
+    let transitionEndListener = () => {
+      this.aboutWindow.style.display = 'none';
+      this.aboutWindow.removeEventListener("transitionend", transitionEndListener);
+    }
+    this.aboutWindow.addEventListener("transitionend", transitionEndListener);
+  }
+
+  showAboutWindow = (): void => {
+    this.aboutWindow.style.display = 'initial';
+    setTimeout(() => this.removeClass(this.aboutWindow, "hidden"));
+    this.hideShareWindow();
+  }
+
+  showShareWindow = (): void => {
+    this.shareWindow.style.display = 'initial';
+    setTimeout(() => this.removeClass(this.shareWindow, "hidden"));
+    this.hideAboutWindow();
+  }
+
+  hideShareWindow = (): void => {
+    if (this.shareWindow.classList.contains("hidden"))
+      return;
+
+    this.addClass(this.shareWindow, "hidden");
+
+    let transitionEndListener = () => {
+      this.shareWindow.style.display = 'none';
+      this.shareWindow.removeEventListener("transitionend", transitionEndListener);
+    }
+    this.shareWindow.addEventListener("transitionend", transitionEndListener);
   }
 
   clearRotations = (): void => {
@@ -780,11 +797,10 @@ export default class AppComponent {
       const responseObject: any = JSON.parse(sendImageRequest.responseText);
       const imageUrl = "https:" + responseObject.data.attributes.image.url;
       this.facebookShareUrl = imageUrl;
-      this.hideLoadingBar();
-
       this.sharePreviewElement.src = imageUrl;
-      this.shareWindow.style.display = 'initial';
-      setTimeout(() => this.removeClass(this.shareWindow, "hidden"));
+
+      this.hideLoadingBar();
+      this.showShareWindow();
     }
     sendImageRequest.setRequestHeader('Accept', 'application/vnd.api+json');
     sendImageRequest.setRequestHeader('Content-Type', 'application/vnd.api+json');
